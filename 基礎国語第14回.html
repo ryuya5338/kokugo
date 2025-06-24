@@ -1,0 +1,70 @@
+<!-- 
+課題名：グレースケール化プログラム
+作成者：〇〇〇〇
+作成日：2025年〇月〇日
+説明：
+選択した画像を読み込み、各画素のRGB値を取得し、明度計算によりグレースケール画像に変換するプログラムです。
+画像はcanvasに表示され、処理はすべて単一HTMLファイル内で実行されます。
+操作方法：
+1. 「ファイルを選択」ボタンをクリックし、任意の画像を選択してください。
+2. 自動でグレースケール変換が行われ、結果が画面に表示されます。
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>グレースケール変換</title>
+</head>
+<body>
+    <h1>画像をグレースケールに変換</h1>
+    <input type="file" id="imageLoader" />
+    <br><br>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        // 画像読み込みと表示の準備
+        const imageLoader = document.getElementById('imageLoader');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // ファイル選択時の処理
+        imageLoader.addEventListener('change', handleImage, false);
+
+        function handleImage(e) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    // 画像をcanvasに描画
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+
+                    // ピクセルデータ取得
+                    let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    let data = imageData.data;
+
+                    // 各画素のグレースケール処理
+                    for (let i = 0; i < data.length; i += 4) {
+                        let r = data[i];
+                        let g = data[i + 1];
+                        let b = data[i + 2];
+
+                        // 明度計算（一般的なグレースケール変換式）
+                        let gray = 0.299 * r + 0.587 * g + 0.114 * b;
+
+                        // RGBすべてをグレースケール値に変更
+                        data[i] = data[i + 1] = data[i + 2] = gray;
+                    }
+
+                    // 変換した画像をcanvasに再描画
+                    ctx.putImageData(imageData, 0, 0);
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    </script>
+</body>
+</html>
